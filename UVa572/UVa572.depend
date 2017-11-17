@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1510581597 source:d:\c++codes\uva572\main.cpp
+	<iostream>
+	<memory.h>
+	<cstdio>
+
