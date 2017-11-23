@@ -1,0 +1,158 @@
+#include <iostream>
+#include<cstdio>
+using namespace std;
+struct RBNode;
+typedef RBNode* RBTree;
+struct RBNode
+{
+	bool color;//True represent red,False represent black
+	RBTree L, R, P;
+	int val;
+	RBNode() :color(true), L(NULL), R(NULL), P(NULL), val(0) {}
+};
+
+void printTree(RBTree T)
+{
+	if (T == NULL)return;
+	printTree(T->L);
+	printf("%d ", T->val);
+	printTree(T->R);
+}
+//父节点的指针未设置
+RBTree LeftRotate(RBTree T)
+{
+	RBTree newT = T->R;
+	RBTree P = T->P;
+	newT->P = P;
+	if (P)
+	{
+		if (P->L == T)P->L = newT;
+		else P->R = newT;
+	}
+	T->R = newT->L;
+	if (T->R != NULL)T->R->P = T;
+	newT->L = T;
+	T->P = newT;
+	return newT;
+}
+
+RBTree RightRotate(RBTree T)
+{
+	RBTree newT = T->L;
+	RBTree P = T->P;
+	newT->P = P;
+	if (P)
+	{
+		if (P->L == T)P->L = newT;
+		else P->R = newT;
+	}
+	T->L = newT->R;
+	if (T->L != NULL)T->L->P = T;
+	newT->R = T;
+	T->P = newT;
+	return newT;
+}
+
+void setColor(RBTree T,bool color)
+{
+	if (T != NULL)T->color = color;
+}
+
+bool getColor(RBTree T)
+{
+	if (T == NULL)return false;
+	else return T->color;
+}
+
+void Fix(RBTree T)
+{
+	if (T == NULL)return;
+	if (T->P == NULL)
+	{
+		setColor(T, false);
+		return;
+	}
+	if (T->P->color == false) return;
+	RBTree next=NULL;
+	RBTree F = T->P, G = F->P, U = (G->L == F) ? (G->R) : (G->L);
+	if (getColor(U)==true)//叔叔节点为红
+	{
+		setColor(F, false);
+		setColor(U, false);
+		setColor(G, true);
+		next = G;
+	}
+	else if (getColor(U) == false)//叔叔节点为黑
+	{
+		if (T == F->R)
+		{
+			next = F;
+			LeftRotate(next);
+		}
+		else
+		{
+			setColor(F, false);
+			setColor(G, true);
+			RightRotate(G);
+		}
+	}
+	Fix(next);
+}
+
+RBTree Insert(RBTree _T, int V)
+{
+	RBTree T = _T;
+	if (T == NULL)
+	{
+		T = new RBNode;
+		T->val = V;
+		T->color = false;
+		return T;
+	}
+	bool isFinished = false;
+	while (!isFinished)
+	{
+		if (V>T->val)
+		{
+			if (T->R == NULL)
+			{
+				T->R = new RBNode;
+				T->R->P = T;
+				T->R->val = V;
+				isFinished = true;
+			}
+			T = T->R;
+		}
+		else if (V<T->val)
+		{
+			if (T->L == NULL)
+			{
+				T->L = new RBNode;
+				T->L->P = T;
+				T->L->val = V;
+				isFinished = true;
+			}
+			T = T->L;
+		}
+		else if (V == T->val) isFinished = true;
+	}
+	Fix(T);
+	while (T->P != NULL)T = T->P;
+	return T;
+}
+
+int main()
+{
+	RBTree T = NULL;
+	T=Insert(T, 5);
+	T=Insert(T, 1);
+	T=Insert(T, 4);
+	T=Insert(T, 4);
+	T=Insert(T, 6);
+	T=Insert(T, 55);
+	T=Insert(T, 214);
+	T=Insert(T, 433);
+	printTree(T);
+	system("pause");
+	return 0;
+}
